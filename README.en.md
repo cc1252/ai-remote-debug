@@ -181,6 +181,18 @@ python claude-tools\ard_mcp.py
 
 Configure the stdio MCP Server with `ARD_RELAY_URL` and `ARD_API_TOKEN`. Do not commit the token to a client configuration stored in source control.
 
+## AI Skill
+
+The repository includes an [`ai-remote-debug` Skill](skills/ai-remote-debug/SKILL.md) that teaches an AI the diagnostic workflow, not merely the command names: discover and identify the node, gather the minimum necessary evidence, form a hypothesis, obtain authorization before a change, and verify the outcome.
+
+Copy the complete `skills/ai-remote-debug` folder into any AI client that supports `SKILL.md`, or point its skill loader at that directory. After configuring the ARD MCP Server above, invoke it with a request such as:
+
+```text
+Use $ai-remote-debug to find why the application will not start on the authorized "Customer A POS" PC. Collect evidence first and do not modify the customer environment.
+```
+
+The Skill supports MCP with an `ard` CLI fallback and includes boundaries for customer authorization, sensitive-data minimization, command approval, and high-risk ADB/fastboot operations.
+
 ## Security model
 
 - Terminate HTTPS/WSS at a maintained reverse proxy or gateway for internet deployments.

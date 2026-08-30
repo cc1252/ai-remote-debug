@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI Remote Debug"
+  short_description: "Diagnose authorized remote PCs and Android devices"
+  default_prompt: "Use $ai-remote-debug to diagnose an authorized customer device, gather evidence, and propose the safest next action."

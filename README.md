@@ -210,6 +210,18 @@ python claude-tools\ard_mcp.py
 
 不要把 token 直接写入会提交到仓库的 MCP 配置。不同客户端的配置格式不同，请参考对应客户端的 MCP Server 文档。
 
+## AI Skill
+
+仓库同时提供可直接交给 AI 使用的 [`ai-remote-debug` Skill](skills/ai-remote-debug/SKILL.md)。它让 AI 不只是知道有哪些命令，还会按远程排障流程工作：先发现并确认设备，再收集最小必要证据、形成诊断假设，获得授权后才执行修改，并在最后验证结果。
+
+将整个 `skills/ai-remote-debug` 文件夹复制到支持 `SKILL.md` 的 AI 客户端技能目录，或让客户端直接加载该目录。配置好上面的 ARD MCP Server 后，可以这样发起任务：
+
+```text
+使用 $ai-remote-debug 排查“客户A-收银台电脑”上的程序为什么无法启动，先只收集证据，不要修改客户环境。
+```
+
+Skill 同时支持 MCP 和 `ard` CLI 回退，并内置了客户授权、敏感数据最小化、命令确认、ADB/fastboot 高风险操作等边界。
+
 ## 配置
 
 ### Relay 环境变量
