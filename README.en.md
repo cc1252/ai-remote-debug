@@ -183,7 +183,34 @@ Configure the stdio MCP Server with `ARD_RELAY_URL` and `ARD_API_TOKEN`. Do not 
 
 ## AI Skill
 
-The repository includes an [`ai-remote-debug` Skill](skills/ai-remote-debug/SKILL.md) that teaches an AI the diagnostic workflow, not merely the command names: discover and identify the node, gather the minimum necessary evidence, form a hypothesis, obtain authorization before a change, and verify the outcome.
+The repository includes an [`ai-remote-debug` Skill](skills/ai-remote-debug/SKILL.md). If MCP gives an AI the “hands” to reach an authorized customer environment, the Skill provides the remote-diagnostics runbook: what to inspect first, how to narrow the failure, which actions need confirmation, and how to prove that a fix actually worked.
+
+Without the Skill, an AI sees a collection of independent tools. With it loaded, the AI follows a complete support loop:
+
+```text
+Customer reports a problem
+        ↓
+Discover and select the correct online node
+        ↓
+Collect the minimum useful logs, process, service, configuration,
+network, and runtime evidence
+        ↓
+Form a cause hypothesis and run focused discriminating checks
+        ↓
+Report the conclusion and supporting evidence
+        ↓
+Apply the smallest fix after explicit authorization
+        ↓
+Repeat the original check and verify the outcome
+```
+
+| Customer problem | What the AI can do with the Skill |
+|---|---|
+| Windows application will not start or crashes | Inspect processes, services, event logs, dependencies, configuration, and occupied ports to locate the failure |
+| Works on the developer machine but fails for the customer | Compare OS and runtime versions, environment variables, permissions, network state, and external dependencies |
+| Android application failure | Correlate device information, focused logcat, dumpsys, package state, and the affected process |
+| Black screen, recovery, or fastboot | Check ADB/fastboot through the nearby customer PC and explain the risk before rebooting or flashing anything |
+| A likely fix is known | Present the exact target, command, impact, and recovery path; execute only within approval and repeat the original failure check |
 
 Copy the complete `skills/ai-remote-debug` folder into any AI client that supports `SKILL.md`, or point its skill loader at that directory. After configuring the ARD MCP Server above, invoke it with a request such as:
 
@@ -191,7 +218,14 @@ Copy the complete `skills/ai-remote-debug` folder into any AI client that suppor
 Use $ai-remote-debug to find why the application will not start on the authorized "Customer A POS" PC. Collect evidence first and do not modify the customer environment.
 ```
 
-The Skill supports MCP with an `ard` CLI fallback and includes boundaries for customer authorization, sensitive-data minimization, command approval, and high-risk ADB/fastboot operations.
+You can also provide a precise authorization envelope:
+
+```text
+Use $ai-remote-debug to inspect the MyApp service and today's error logs on "Customer A POS".
+You may restart MyApp, but do not change configuration, install software, or reboot the PC. Verify the service afterward and report the evidence.
+```
+
+The Skill supports MCP with an `ard` CLI fallback and includes boundaries for customer authorization, sensitive-data minimization, command approval, and high-risk ADB/fastboot operations. It stores no Relay token, bypasses no MCP client permission, and grants the AI no device access by itself; it can use only connections the operator has already configured and authorized.
 
 ## Security model
 
