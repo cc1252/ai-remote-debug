@@ -15,6 +15,24 @@ AI Remote Debug（ARD）就是为这个断点设计的。它在客户电脑或 A
 
 ARD 不只是 Android 工具，而是一套面向 AI 时代的软件售后、远程诊断与现场问题处理基础设施。
 
+## English overview
+
+AI is making software dramatically faster to build, but troubleshooting after delivery is still painfully manual. Customers struggle to describe failures, developers cannot see the real runtime environment, and the AI that helped create the software is forced to guess from screenshots and chat messages.
+
+**AI Remote Debug (ARD) closes that post-delivery gap.** A lightweight agent connects outbound from an authorized customer PC or Android device to a self-hosted Relay. Engineers and MCP-compatible AI agents can inspect real logs, processes, services, configuration, files, network state, and device status—then perform an explicitly approved fix and verify the result.
+
+ARD is designed for the complete AI-era support loop:
+
+- **One-click customer onboarding:** send a preconfigured Windows EXE; the customer double-clicks it, names the PC, approves installation, and comes online. No Python or manual configuration is required on the customer machine.
+- **PC and Android as first-class targets:** diagnose Windows applications directly, inspect Android through the on-device executor, or use a nearby PC for ADB/fastboot when Android cannot boot normally.
+- **Built for AI tools:** MCP exposes structured remote-diagnostic operations, while the included [`ai-remote-debug` Skill](skills/ai-remote-debug/SKILL.md) teaches the AI to gather evidence first, respect authorization boundaries, minimize changes, and verify every remediation.
+- **Self-hosted and outbound:** customer agents initiate the connection, so no customer static IP or exposed ADB port is required; the Relay and data path remain under the operator's control.
+- **More than remote control:** ARD gives AI explicit diagnostic tools and machine-readable results instead of asking it to click through a remote desktop session.
+
+In short, ARD lets the AI that helped build the software continue supporting it in the customer's real environment—from symptom, to evidence, to diagnosis, to an authorized and verified fix.
+
+For the complete English guide, see [README.en.md](README.en.md).
+
 ## 它要解决的问题
 
 ```text
