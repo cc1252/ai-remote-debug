@@ -1,0 +1,8 @@
+{
+  "relay_ws": "ws://127.0.0.1:8000/ws/mobile",
+  "token": "replace-with-relay-token",
+  "name": "",
+  "device_id": "",
+  "adb": "",
+  "fastboot": ""
+}

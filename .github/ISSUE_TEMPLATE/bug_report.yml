@@ -1,0 +1,49 @@
+name: 缺陷报告
+description: 报告一个可复现的问题（安全漏洞请勿使用此模板）
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: 安全问题请按 SECURITY.md 私下报告。提交前请删除 token、设备标识和客户数据。
+  - type: dropdown
+    id: component
+    attributes:
+      label: 组件
+      options:
+        - Relay Server
+        - Android Executor
+        - PC Host Agent
+        - CLI / MCP
+        - 文档或构建
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: 问题描述
+      description: 实际发生了什么？你原本期望什么？
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. 启动……
+        2. 执行……
+        3. 看到……
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 环境
+      description: 提交版本、操作系统、Python/Android 版本及相关部署方式。
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 已脱敏日志
+      render: shell

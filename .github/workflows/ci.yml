@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.13"]
+    env:
+      ARD_API_TOKEN: ci-token-that-is-longer-than-thirty-two-characters
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: |
+            relay-server/requirements.txt
+            pc-agent/requirements.txt
+            claude-tools/requirements.txt
+            requirements-dev.txt
+      - name: Install test dependencies
+        run: >-
+          python -m pip install
+          -r relay-server/requirements.txt
+          -r pc-agent/requirements.txt
+          -r claude-tools/requirements.txt
+          -r requirements-dev.txt
+      - name: Check Python syntax
+        run: python -m compileall -q relay-server pc-agent claude-tools tests
+      - name: Smoke-test Python entry points
+        run: |
+          python -c "import runpy; runpy.run_path('pc-agent/agent.py')"
+          python -c "import runpy; runpy.run_path('claude-tools/ard_mcp.py')"
+      - name: Run tests
+        run: pytest -q
+
+  android:
+    name: Android debug build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: "8.2.1"
+      - name: Assemble debug APK
+        working-directory: mobile-executor
+        run: gradle :app:assembleDebug --no-daemon

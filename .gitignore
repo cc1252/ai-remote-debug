@@ -1,0 +1,45 @@
+# Android Remote Debug
+
+# Dependencies
+.gradle/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local configuration and credentials
+.env
+.env.*
+*.token
+.remote-token
+agent.config.json
+local.properties
+_agent_baked.py
+*-baked.spec
+
+# Logs and runtime data
+*.log
+artifacts/
+
+# Build outputs and generated test artifacts
+build/
+bin/
+dist/
+release/
+*.apk
+*.aab
+*.exe
+*.zip
+*.bin
+*-pulled.txt
+*-test.txt
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

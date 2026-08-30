@@ -1,0 +1,2 @@
+websockets>=14.2,<16; python_version < "3.11"
+websockets>=17.1,<18; python_version >= "3.11"

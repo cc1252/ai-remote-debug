@@ -1,0 +1,43 @@
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /relay-server
+    schedule:
+      interval: monthly
+    labels: [dependencies, python]
+
+  - package-ecosystem: pip
+    directory: /pc-agent
+    schedule:
+      interval: monthly
+    labels: [dependencies, python]
+
+  - package-ecosystem: pip
+    directory: /claude-tools
+    schedule:
+      interval: monthly
+    labels: [dependencies, python]
+
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: monthly
+    labels: [dependencies, python]
+
+  - package-ecosystem: gradle
+    directory: /mobile-executor
+    schedule:
+      interval: monthly
+    labels: [dependencies, android]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    labels: [dependencies, ci]
+
+  - package-ecosystem: docker
+    directory: /relay-server
+    schedule:
+      interval: monthly
+    labels: [dependencies, docker]

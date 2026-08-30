@@ -1,0 +1,16 @@
+services:
+  relay:
+    build: ./relay-server
+    init: true
+    environment:
+      ARD_API_TOKEN: ${ARD_API_TOKEN:?Set ARD_API_TOKEN before starting Compose}
+      ARD_ARTIFACT_DIR: /data/artifacts
+      ARD_MAX_ARTIFACT_BYTES: ${ARD_MAX_ARTIFACT_BYTES:-536870912}
+    ports:
+      - "8000:8000"
+    volumes:
+      - relay-artifacts:/data/artifacts
+    restart: unless-stopped
+
+volumes:
+  relay-artifacts:
