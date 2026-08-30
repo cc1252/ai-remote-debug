@@ -90,13 +90,21 @@ adb / fastboot / files   screenshot / install
 | Component | Responsibility | Runs on |
 |---|---|---|
 | `relay-server` | Device registration, command relay, log streaming, and temporary artifact transfer | A self-hosted server |
-| `pc-agent` | Customer PC diagnostics, host commands, ADB, and fastboot | Windows, or another host with Python |
+| `pc-agent` | Customer PC diagnostics, host commands, ADB, and fastboot | A Windows customer PC (delivered as one EXE) |
 | `mobile-executor` | Android logcat, shell/root, app, input, screenshot, and file operations | Android 8.0+ |
 | `claude-tools` | The `ard` CLI and MCP Server for engineers, scripts, and AI clients | The operator or AI environment |
 
 The PC Agent does not depend on the Android app. It can diagnose the customer PC itself or control an Android device connected over USB. Most privileged Android file, app, and input operations require root.
 
 ## Quick start
+
+### What the customer actually does
+
+The customer has one step: **double-click the `ard-host-agent.exe` you send them**.
+
+On first launch, the agent asks for a recognizable computer name and requests Windows administrator approval. It then installs itself for automatic startup and comes online. The customer does not install Python, edit configuration files, or run commands. Double-clicking the same EXE later provides restart and uninstall options.
+
+The project operator embeds the Relay address and connection token while creating the customer EXE. The remaining steps are for operators and developers, not customers.
 
 ### 1. Start the Relay
 
@@ -117,18 +125,23 @@ docker compose up --build
 
 The Relay rejects missing, placeholder, or shorter-than-32-character tokens. For remote access, deploy it behind HTTPS/WSS and appropriate network controls.
 
-### 2. Connect a customer PC
+### 2. Build the single-file customer EXE
 
 ```powershell
 cd pc-agent
-python -m venv .venv
-.\.venv\Scripts\pip install -r requirements.txt
-Copy-Item agent.config.example.json agent.config.json
-# Edit agent.config.json, then:
-.\.venv\Scripts\python agent.py --run
+python -m venv .build-venv
+.\.build-venv\Scripts\pip install -r requirements.txt pyinstaller
+
+# Use the same token as the Relay. The script does not write it to tracked source.
+$env:ARD_API_TOKEN = "<the same Relay token>"
+.\build-customer.ps1 -RelayWs "wss://relay.example.com/ws/mobile"
+Remove-Item Env:\ARD_API_TOKEN
 ```
 
-After verifying the configuration, `agent.py --install` can create a Windows SYSTEM startup task. A PyInstaller build is available for customer machines without Python. Read the [PC Agent guide](pc-agent/README.md) before deployment.
+The output is `pc-agent\release\ard-host-agent.exe`. Send only this file to the customer; double-clicking it handles naming, authorization, installation, and connection. See the [PC Agent guide](pc-agent/README.md) for details.
+
+> [!IMPORTANT]
+> A capable user can extract a token embedded in an EXE. The current Relay uses one shared token, so this delivery mode is appropriate only for personal use, trusted customers, or a dedicated Relay per customer. Do not distribute one production token among mutually untrusted customers.
 
 ### 3. Optionally connect Android
 

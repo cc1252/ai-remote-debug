@@ -31,34 +31,44 @@ agent 复用手机端同一套 Relay WebSocket 协议（`/ws/mobile/{device_id}`
 > 安全说明：agent 接受任意命令执行，等于把这台电脑的控制权交给持有 token 的人。
 > token 即权限，务必只在受信任的 Relay 和环境里使用。
 
-## 部署到客户电脑
+## 客户怎么安装
 
-### 方式 A：打包 exe（客户电脑没装 Python，推荐）
+把预配置好的 `ard-host-agent.exe` 发给客户。客户只需要：
 
-1. 开发机上先装依赖并打包：
-   ```bat
-   "C:\Program Files\Python313\python.exe" -m pip install pyinstaller -r requirements.txt
-   build.bat
-   ```
-   产物在 `dist\ard-host-agent.exe`。
+1. 双击 EXE；
+2. 填写一个便于技术支持识别的电脑名称；
+3. 同意 Windows 管理员授权。
 
-2. 把这三个文件拷到客户电脑同一目录（如 `C:\ard-agent\`）：
-   - `dist\ard-host-agent.exe`
-   - `agent.config.example.json` → 重命名为 `agent.config.json`
-   - `install-autostart.bat`
+程序会自动创建开机自启任务并立即上线。客户不需要安装 Python、不需要编辑 JSON，也不需要运行 BAT 文件。再次双击同一个 EXE，可以重新启动后台服务或卸载。
 
-3. 编辑 `agent.config.json`：填好 `relay_ws` 和至少 32 个字符的随机 `token`。示例文件只包含本地地址和无效占位值，不能直接用于部署。
-   `name` 留空会用机器名，`device_id` 留空会按机器名生成稳定 id。
+## 维护者怎么制作客户版 EXE
 
-4. 右键 `install-autostart.bat` → **以管理员身份运行**。
-   它会建一个开机自启的计划任务（SYSTEM 权限，开机即跑，无需登录），并立即启动。
+在开发机执行：
 
-### 方式 B：直接跑 Python（客户电脑有 Python）
+```powershell
+python -m venv .build-venv
+.\.build-venv\Scripts\pip install -r requirements.txt pyinstaller
 
-```bat
-"C:\Program Files\Python313\python.exe" agent.py --name "客户A电脑"
+$env:ARD_API_TOKEN = "<与 Relay 相同的至少 32 字符 token>"
+.\build-customer.ps1 -RelayWs "wss://relay.example.com/ws/mobile"
+Remove-Item Env:\ARD_API_TOKEN
 ```
-配置也可通过命令行覆盖：`--relay`、`--token`、`--device-id`、`--adb`、`--fastboot`。
+
+产物位于 `release\ard-host-agent.exe`。脚本临时生成注入连接参数的源码供 PyInstaller 构建，并在结束时删除；临时源码和 EXE 都被 `.gitignore` 排除，不会误提交 token。
+
+> 预配置 EXE 中的 token 仍可能被逆向提取。当前 Relay 是单一共享 token，只应在自用、受信任客户或每位客户独立 Relay 的场景使用，不能把同一个生产 token 发给互不信任的客户。
+
+## 源码调试方式
+
+开发时也可以使用 `agent.config.json` 直接运行 Python：
+
+```powershell
+Copy-Item agent.config.example.json agent.config.json
+# 编辑 relay_ws 和 token 后：
+python agent.py --run
+```
+
+配置也可通过命令行覆盖：`--relay`、`--token`、`--device-id`、`--name`、`--adb`、`--fastboot`。普通 `build.bat` 只生成未预配置的开发版 EXE，需要与 `agent.config.json` 配套；交付客户请使用 `build-customer.ps1`。
 
 ## 你这边怎么用
 

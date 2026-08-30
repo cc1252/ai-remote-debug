@@ -29,6 +29,6 @@ if errorlevel 1 (
 
 echo.
 echo 完成: dist\ard-host-agent.exe
-echo 把 dist\ard-host-agent.exe 和 agent.config.example.json 一起拷到客户电脑,
-echo 重命名配置为 agent.config.json 放在 exe 同目录, 再运行 install-autostart.bat
+echo 这是未预配置的开发版, 需要在 EXE 同目录放置 agent.config.json。
+echo 要生成客户双击即可安装的单文件版, 请使用 build-customer.ps1。
 endlocal

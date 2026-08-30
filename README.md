@@ -92,13 +92,21 @@ adb / fastboot / files   screenshot / install
 | 组件 | 作用 | 运行位置 |
 |---|---|---|
 | `relay-server` | 设备注册、命令转发、日志流和临时文件中转 | 自托管服务器 |
-| `pc-agent` | 诊断客户电脑，执行主机命令、ADB 和 fastboot | Windows 客户电脑，或其他运行 Python 的主机 |
+| `pc-agent` | 诊断客户电脑，执行主机命令、ADB 和 fastboot | Windows 客户电脑（交付为单个 EXE） |
 | `mobile-executor` | 执行 Android logcat、shell/root、应用和文件操作 | Android 8.0+ 设备 |
 | `claude-tools` | 向工程师、脚本和 AI 提供 `ard` CLI 与 MCP Server | 操作者电脑或 AI 工具环境 |
 
 PC Agent 不依赖 Android App：它既可以诊断客户电脑自身，也可以控制通过 USB 连接的 Android 设备。Android 端多数文件、应用和输入操作需要 root。
 
 ## 快速开始
+
+### 客户实际怎么用
+
+客户侧只有一步：**双击你发给他的 `ard-host-agent.exe`**。
+
+首次运行时，程序会让客户填写一个便于技术支持识别的电脑名称，并弹出 Windows 管理员授权；确认后自动安装为开机自启服务并上线。客户电脑不需要安装 Python、不需要编辑配置文件，也不需要执行命令。以后再次双击同一个 EXE，可以重新启动服务或卸载。
+
+Relay 地址和连接 token 由项目部署者在生成客户版 EXE 时预先写入。下面的步骤是给部署者和开发者看的，不是让客户操作的。
 
 ### 1. 启动 Relay
 
@@ -124,20 +132,25 @@ docker compose up --build
 
 访问 `http://127.0.0.1:8000/health`，返回 `{"status":"ok"}` 即表示 Relay 可用。Relay 会拒绝缺失、占位或短于 32 个字符的 token。
 
-### 2. 在客户电脑连接 PC Host Agent
+### 2. 生成发给客户的单文件 EXE
 
 ```powershell
 cd pc-agent
-python -m venv .venv
-.\.venv\Scripts\pip install -r requirements.txt
-Copy-Item agent.config.example.json agent.config.json
-# 编辑 agent.config.json 后：
-.\.venv\Scripts\python agent.py --run
+python -m venv .build-venv
+.\.build-venv\Scripts\pip install -r requirements.txt pyinstaller
+
+# 使用与 Relay 相同的 token；脚本不会把它写入 Git 中的源码
+$env:ARD_API_TOKEN = "<与 Relay 相同的 token>"
+.\build-customer.ps1 -RelayWs "wss://relay.example.com/ws/mobile"
+Remove-Item Env:\ARD_API_TOKEN
 ```
 
-确认运行正常后，可以执行 `agent.py --install` 创建 Windows SYSTEM 开机任务。也可以用 PyInstaller 打包成单文件程序，交付给没有 Python 环境的客户电脑，具体见 [PC Agent 说明](pc-agent/README.md)。
+构建产物是 `pc-agent\release\ard-host-agent.exe`。只把这一个文件发给客户，客户双击即可完成命名、授权、安装和上线。详细说明见 [PC Agent 说明](pc-agent/README.md)。
 
 > PC Agent 能执行任意主机命令。安装前必须获得电脑所有者授权，并明确告知其权限范围和停止、卸载方式。
+
+> [!IMPORTANT]
+> 预配置 EXE 中的 token 可以被有能力的用户提取。当前 Relay 仍是单一共享 token，因此此方式只适合自用、受信任客户或每位客户独立部署的 Relay；不要把同一个生产 token 打包后分发给互不信任的客户。
 
 ### 3. 可选：连接 Android 执行端
 
@@ -217,6 +230,8 @@ python claude-tools\ard_mcp.py
 ### PC Agent 配置优先级
 
 命令行参数 > 环境变量 > `agent.config.json` > 内置本地地址。将 [`agent.config.example.json`](pc-agent/agent.config.example.json) 复制为 `agent.config.json` 后使用；真实配置已被 `.gitignore` 排除。
+
+这部分是源码调试方式。正式交付给客户时，使用 `build-customer.ps1` 将 Relay 地址和 token 预置进单文件 EXE，客户无需接触这些配置。
 
 ## 生产部署与安全边界
 
