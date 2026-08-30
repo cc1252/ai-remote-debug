@@ -5,6 +5,8 @@
 [![CI](https://github.com/cc1252/ai-remote-debug/actions/workflows/ci.yml/badge.svg)](https://github.com/cc1252/ai-remote-debug/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+![AI Remote Debug — Diagnose reality. Don't guess.](docs/images/ai-remote-debug-hero.png)
+
 **Give AI an authorized path into the customer's real environment—so it can diagnose facts instead of guessing through a chat window.**
 
 AI is making software dramatically faster to build, but post-delivery troubleshooting is still painfully manual. A customer cannot describe the failure precisely, developers cannot access on-site logs, the environment cannot be reproduced, and the AI that wrote the software has no visibility into where it actually runs.
@@ -71,6 +73,8 @@ python claude-tools\ard.py host-fastboot <customer-pc> devices
 ARD is currently an early-stage project. The Relay uses one shared token and keeps device state in memory. It is suitable for individuals, small support teams, labs, and trusted networks; it is not yet an enterprise remote-support platform with tenant isolation, fine-grained authorization, and audit logging.
 
 ## Architecture
+
+![AI Remote Debug architecture](docs/images/architecture.png)
 
 ```text
         AI Agent / Engineer
@@ -184,6 +188,8 @@ Configure the stdio MCP Server with `ARD_RELAY_URL` and `ARD_API_TOKEN`. Do not 
 ## AI Skill
 
 The repository includes an [`ai-remote-debug` Skill](skills/ai-remote-debug/SKILL.md). If MCP gives an AI the “hands” to reach an authorized customer environment, the Skill provides the remote-diagnostics runbook: what to inspect first, how to narrow the failure, which actions need confirmation, and how to prove that a fix actually worked.
+
+![From bug report to verified fix with AI Remote Debug](docs/images/ai-support-loop.png)
 
 Without the Skill, an AI sees a collection of independent tools. With it loaded, the AI follows a complete support loop:
 

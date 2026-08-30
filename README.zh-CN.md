@@ -5,6 +5,8 @@
 [![CI](https://github.com/cc1252/ai-remote-debug/actions/workflows/ci.yml/badge.svg)](https://github.com/cc1252/ai-remote-debug/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
+![AI Remote Debug——基于真实环境诊断，而不是猜测](docs/images/ai-remote-debug-hero.png)
+
 **让 AI 在获得授权后进入客户的真实运行环境，直接查证问题，而不是隔着聊天窗口猜问题。**
 
 **Give AI an authorized path into the customer's real environment—so it can diagnose facts instead of guessing through a chat window.**
@@ -73,6 +75,8 @@ python claude-tools\ard.py host-fastboot <customer-pc> devices
 项目目前处于早期阶段，协议和配置可能变化。Relay 使用单一共享 token，设备状态保存在内存中，适合个人团队、小规模售后或受信任网络，还不是具备租户隔离、细粒度权限和审计能力的企业远程支持平台。
 
 ## 工作方式
+
+![AI Remote Debug 架构](docs/images/architecture.png)
 
 ```text
         AI Agent / Engineer
@@ -213,6 +217,8 @@ python claude-tools\ard_mcp.py
 ## AI Skill
 
 仓库同时提供可直接交给 AI 使用的 [`ai-remote-debug` Skill](skills/ai-remote-debug/SKILL.md)。如果说 MCP 给了 AI 一双能够触达客户环境的“手”，那么 Skill 就是它的远程排障操作手册：告诉 AI 应该先看什么、如何缩小问题范围、什么操作必须再次确认，以及修复后怎样证明问题真的解决了。
+
+![AI Remote Debug 从客户报错到验证修复](docs/images/ai-support-loop.png)
 
 没有 Skill 时，AI 只会看到一组彼此独立的工具；加载 Skill 后，它会按完整闭环工作：
 
