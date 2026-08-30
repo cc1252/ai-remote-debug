@@ -1,9 +1,13 @@
 # AI Remote Debug (ARD)
 
+[简体中文](README.md) | [English](README.en.md)
+
 [![CI](https://github.com/cc1252/ai-remote-debug/actions/workflows/ci.yml/badge.svg)](https://github.com/cc1252/ai-remote-debug/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **让 AI 在获得授权后进入客户的真实运行环境，直接查证问题，而不是隔着聊天窗口猜问题。**
+
+**Give AI an authorized path into the customer's real environment—so it can diagnose facts instead of guessing through a chat window.**
 
 AI 正在让软件制作越来越快，但软件交付到客户手上后，排障仍然很原始：客户说不清现象，开发者拿不到现场日志，AI 看不到真实环境，最后只能反复截图、远程桌面和人工猜测。
 
