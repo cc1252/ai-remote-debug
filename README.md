@@ -1,72 +1,98 @@
-# Android Remote Debug
+# AI Remote Debug (ARD)
 
 [![CI](https://github.com/cc1252/android-remote-debug-oss/actions/workflows/ci.yml/badge.svg)](https://github.com/cc1252/android-remote-debug-oss/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**让 Android 调试摆脱 USB 线、局域网和远程桌面。**
+**让 AI 在获得授权后进入客户的真实运行环境，直接查证问题，而不是隔着聊天窗口猜问题。**
 
-Android Remote Debug（ARD）把分散在不同网络、不同地点的 Android 设备，变成可以通过命令行和 MCP 直接操作的远程调试节点。设备主动连接你自己的 Relay，无需暴露 ADB 端口；需要救援时，还可以通过设备旁边的 PC Agent 执行 ADB 和 fastboot。
+AI 正在让软件制作越来越快，但软件交付到客户手上后，排障仍然很原始：客户说不清现象，开发者拿不到现场日志，AI 看不到真实环境，最后只能反复截图、远程桌面和人工猜测。
 
-一句话概括：**把 `adb`、root shell、日志、截图、文件传输和救砖能力，安全地搬到任何能访问 Relay 的地方。**
+AI Remote Debug（ARD）就是为这个断点设计的。它在客户电脑或 Android 设备上运行一个主动连接的执行端，把日志、系统状态、命令结果、文件和调试能力通过自托管 Relay 提供给 CLI 与 MCP 客户端。AI 可以在工程师监督下收集证据、定位环境差异，并执行经过确认的修复操作。
+
+ARD 不只是 Android 工具，而是一套面向 AI 时代的软件售后、远程诊断与现场问题处理基础设施。
+
+## 它要解决的问题
+
+```text
+软件在开发机正常
+        ↓
+交付到客户环境后出问题
+        ↓
+客户不会描述 / 日志拿不到 / 环境无法复现
+        ↓
+AI 和工程师缺少真实上下文，只能来回沟通和猜测
+```
+
+ARD 把最后一段连接补上：**让 AI 能够触达经过授权的客户现场，并基于真实证据排查问题。**
 
 ## 为什么值得用
 
-- **设备主动上线，不需要公网 ADB**：Android App 和 PC Agent 都通过 WebSocket 主动连接 Relay，适合 NAT、动态 IP 和跨网络环境。
-- **正常调试与故障救援双通道**：系统正常时使用 Android Executor；无法进入系统时，通过旁边的 PC Agent 继续执行 ADB/fastboot。
-- **为自动化和 AI 工具而生**：同时提供 CLI 与 MCP Server，可接入脚本、CI、IDE 和支持 MCP 的 AI 编程助手。
+- **AI 原生，而不是把远程桌面交给 AI 点鼠标**：MCP 与 CLI 提供明确的工具和结构化结果，便于 AI 读取状态、调用诊断并持续推理。
+- **远程电脑是一等执行端**：PC Host Agent 可以检查客户电脑的进程、服务、日志、文件、网络和运行环境，也能执行获得授权的修复命令。
+- **Android 深度调试**：Android Executor 提供 logcat、应用管理、root shell、输入控制、截图、APK 安装和文件传输。
+- **系统故障仍有第二条路**：Android 无法进入系统时，可通过旁边的 PC Host Agent 继续执行 ADB/fastboot，覆盖黑屏、recovery 和 fastboot 场景。
+- **客户侧主动连接**：PC Agent 和 Android App 都主动连接 Relay，不要求客户拥有固定 IP，也不需要把客户电脑或 ADB 端口直接暴露到公网。
 - **自托管，数据路径自己掌控**：Relay 是轻量 FastAPI 服务，不依赖第三方远控平台；支持 Python 或 Docker Compose 部署。
-- **不仅是远程 shell**：内置 logcat、应用管理、输入控制、截图、APK 安装、分块文件传输和 Artifact 中转。
-- **适合长期在线设备**：支持心跳、断线重连、Android 前台服务和可选的 PC 开机自启。
+- **适合长期售后与持续维护**：支持心跳、断线重连、Android 前台服务和可选的 PC 开机自启，让一次交付后的问题也能持续被诊断。
 
 ## 典型场景
 
 | 场景 | ARD 能解决什么 |
 |---|---|
-| 异地测试机 | 不到现场也能查日志、截屏、装包、重启应用和执行 shell |
-| Android 实验室 | 用统一 CLI 管理多台 root 设备，便于脚本化批量排查 |
-| 远程技术支持 | 在明确授权下，通过客户电脑的 USB 连接执行 ADB/fastboot |
+| 客户电脑上的软件报错 | 直接检查进程、服务、配置、文件、网络和运行日志，减少来回询问 |
+| “开发环境正常，客户环境失败” | 让 AI 对比真实系统信息和依赖状态，定位环境差异 |
+| AI 制作软件后的远程售后 | 让写代码的 AI 继续参与交付后的诊断和修复闭环 |
+| 异地 Android 测试机 | 不到现场也能查日志、截屏、装包、重启应用和执行 shell |
+| 远程技术支持 | 在明确授权下，通过客户电脑执行诊断，或控制其 USB 连接的 Android 设备 |
 | 黑屏、recovery、fastboot | Android App 不在线时，仍可通过 PC Host Agent 继续救援 |
-| AI 辅助调试 | 让 MCP 客户端直接读取设备状态、日志和命令结果 |
 
 ```powershell
-# 查看所有在线 Android / PC 节点
+# 查看所有在线客户电脑和 Android 节点
 python claude-tools\ard.py devices
 
-# 拉取远程设备最近 200 行日志
-python claude-tools\ard.py logcat <device> --lines 200
+# 检查客户电脑的系统与 ADB/fastboot 环境
+python claude-tools\ard.py host-which <customer-pc>
 
-# 远程执行 root shell（危险操作需要显式确认）
-python claude-tools\ard.py shell <device> "dumpsys battery" --confirm
+# 在明确确认后执行电脑诊断命令
+python claude-tools\ard.py host-exec <customer-pc> "systeminfo" --confirm
 
-# 手机无法进系统时，从旁边的 PC 检查 fastboot
-python claude-tools\ard.py host-fastboot <host> devices
+# 拉取客户 Android 设备最近 200 行日志
+python claude-tools\ard.py logcat <android-device> --lines 200
+
+# Android 无法进入系统时，从旁边的电脑检查 fastboot
+python claude-tools\ard.py host-fastboot <customer-pc> devices
 ```
 
 > [!WARNING]
-> ARD 能在已连接设备上执行高权限命令。仅用于你拥有或已获明确授权的设备。持有 Relay token 的人可能取得设备控制权；公网部署必须使用 HTTPS/WSS、随机长 token 和访问控制。
+> ARD 能在已连接的客户电脑和 Android 设备上执行高权限命令。必须获得设备所有者的明确授权。持有 Relay token 的人可能取得设备控制权；公网部署必须使用 HTTPS/WSS、随机长 token 和访问控制。
 
-项目目前处于早期阶段，协议和配置可能变化。Relay 使用单一共享 token，设备状态保存在内存中，适合个人、实验室或小型受信任网络，不是多租户设备管理平台。
+项目目前处于早期阶段，协议和配置可能变化。Relay 使用单一共享 token，设备状态保存在内存中，适合个人团队、小规模售后或受信任网络，还不是具备租户隔离、细粒度权限和审计能力的企业远程支持平台。
 
 ## 工作方式
 
 ```text
-CLI / MCP ── HTTPS ──┐
-                     ▼
-                  Relay
-                 ▲     ▲
-          WSS ───┘     └─── WSS
-   Android Executor       PC Host Agent
-   root / shell / files   adb / fastboot / shell
+        AI Agent / Engineer
+                │
+           CLI / MCP
+                │ HTTPS
+                ▼
+          Self-hosted Relay
+           ▲             ▲
+       WSS │             │ WSS
+           │             │
+Customer PC Host Agent   Android Executor
+apps / logs / shell      logcat / root / files
+adb / fastboot / files   screenshot / install
 ```
 
 | 组件 | 作用 | 运行位置 |
 |---|---|---|
 | `relay-server` | 设备注册、命令转发、日志流和临时文件中转 | 自托管服务器 |
-| `mobile-executor` | 执行 Android shell/root 命令并回传结果 | Android 8.0+ 设备 |
-| `pc-agent` | 执行 ADB、fastboot 或主机命令 | 连接手机的 PC |
-| `claude-tools` | `ard` CLI 和 MCP Server | 操作者电脑 |
+| `pc-agent` | 诊断客户电脑，执行主机命令、ADB 和 fastboot | Windows 客户电脑，或其他运行 Python 的主机 |
+| `mobile-executor` | 执行 Android logcat、shell/root、应用和文件操作 | Android 8.0+ 设备 |
+| `claude-tools` | 向工程师、脚本和 AI 提供 `ard` CLI 与 MCP Server | 操作者电脑或 AI 工具环境 |
 
-Android 端多数文件、应用和输入操作需要 root；PC Agent 不依赖 Android App，可在设备无法进入系统时通过 USB 执行 ADB/fastboot。
+PC Agent 不依赖 Android App：它既可以诊断客户电脑自身，也可以控制通过 USB 连接的 Android 设备。Android 端多数文件、应用和输入操作需要 root。
 
 ## 快速开始
 
@@ -94,47 +120,7 @@ docker compose up --build
 
 访问 `http://127.0.0.1:8000/health`，返回 `{"status":"ok"}` 即表示 Relay 可用。Relay 会拒绝缺失、占位或短于 32 个字符的 token。
 
-### 2. 连接 Android 执行端
-
-构建需要 JDK 17、Android SDK 34 和 Gradle 8.2.1：
-
-```powershell
-cd mobile-executor
-gradle :app:assembleDebug
-adb install -r app\build\outputs\apk\debug\app-debug.apk
-```
-
-打开 App，填写：
-
-- 设备显示名称；
-- Relay WebSocket 地址，例如 `ws://192.168.1.10:8000/ws/mobile`；
-- 与 Relay 相同的 token。
-
-点击“一键启动远程调试”。App 只会在用户手动启用后设置开机自启，并始终显示前台服务通知。局域网开发可以使用 `ws://`；生产部署必须使用 `wss://`。
-
-### 3. 使用 CLI
-
-在操作者电脑配置 Relay：
-
-```powershell
-$env:ARD_RELAY_URL = "http://127.0.0.1:8000"
-$env:ARD_API_TOKEN = "<与 Relay 相同的 token>"
-python claude-tools\ard.py devices
-python claude-tools\ard.py device <device-id-or-name> info
-python claude-tools\ard.py logcat <device-id-or-name> --lines 200
-```
-
-会修改设备状态的操作要求显式确认：
-
-```powershell
-python claude-tools\ard.py shell <device> "id" --confirm
-python claude-tools\ard.py push <device> .\local.apk /data/local/tmp/local.apk --confirm
-python claude-tools\ard.py adb-tcp <device> enable --confirm
-```
-
-运行 `python claude-tools\ard.py --help` 查看全部命令。
-
-### 4. 可选：连接 PC Host Agent
+### 2. 在客户电脑连接 PC Host Agent
 
 ```powershell
 cd pc-agent
@@ -145,16 +131,58 @@ Copy-Item agent.config.example.json agent.config.json
 .\.venv\Scripts\python agent.py --run
 ```
 
-确认运行正常后，可以执行 `agent.py --install` 创建 Windows SYSTEM 开机任务。该模式等同于向 Relay token 持有者开放主机命令执行权限，请先阅读 [PC Agent 说明](pc-agent/README.md)。
+确认运行正常后，可以执行 `agent.py --install` 创建 Windows SYSTEM 开机任务。也可以用 PyInstaller 打包成单文件程序，交付给没有 Python 环境的客户电脑，具体见 [PC Agent 说明](pc-agent/README.md)。
+
+> PC Agent 能执行任意主机命令。安装前必须获得电脑所有者授权，并明确告知其权限范围和停止、卸载方式。
+
+### 3. 可选：连接 Android 执行端
+
+如果交付的软件运行在 Android 上，或需要同时诊断客户电脑连接的 Android 设备，可以安装 Android Executor。构建需要 JDK 17、Android SDK 34 和 Gradle 8.2.1：
+
+```powershell
+cd mobile-executor
+gradle :app:assembleDebug
+adb install -r app\build\outputs\apk\debug\app-debug.apk
+```
+
+打开 App，填写设备名称、Relay WebSocket 地址和相同的 token，然后点击“一键启动远程调试”。App 只会在用户手动启用后设置开机自启，并始终显示前台服务通知。
+
+### 4. 从工程师或 AI 侧使用 CLI
+
+在操作者电脑配置 Relay：
+
+```powershell
+$env:ARD_RELAY_URL = "http://127.0.0.1:8000"
+$env:ARD_API_TOKEN = "<与 Relay 相同的 token>"
+
+# 发现客户电脑和 Android 设备
+python claude-tools\ard.py devices
+
+# 诊断客户电脑
+python claude-tools\ard.py host-which <customer-pc>
+python claude-tools\ard.py host-exec <customer-pc> "systeminfo" --confirm
+
+# 诊断 Android
+python claude-tools\ard.py device <android-device> info
+python claude-tools\ard.py logcat <android-device> --lines 200
+```
+
+更多 PC 与 Android 操作：
 
 ```powershell
 python claude-tools\ard.py host-which <host-id>
 python claude-tools\ard.py host-adb <host-id> devices
 python claude-tools\ard.py host-fastboot <host-id> devices
 python claude-tools\ard.py host-exec <host-id> "whoami" --confirm
+python claude-tools\ard.py shell <android-device> "id" --confirm
+python claude-tools\ard.py push <android-device> .\local.apk /data/local/tmp/local.apk --confirm
 ```
 
+运行 `python claude-tools\ard.py --help` 查看全部命令。
+
 ## MCP 接入
+
+MCP 是 ARD 面向 AI 的核心入口。客户明确授权并部署执行端后，AI 不只是给出排障建议，还可以发现客户节点、读取真实状态并调用远程诊断能力。是否对每次工具调用再次确认，取决于所使用的 MCP 客户端权限设置。
 
 `claude-tools/ard_mcp.py` 提供 stdio MCP Server。安装依赖后，在支持 MCP 的客户端中把启动命令配置为该 Python 文件，并设置 `ARD_RELAY_URL`、`ARD_API_TOKEN` 两个环境变量：
 

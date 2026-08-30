@@ -35,7 +35,7 @@ async def lifespan(_: FastAPI):
     yield
 
 
-app = FastAPI(title="Android Remote Debug Relay", version="0.2.0", lifespan=lifespan)
+app = FastAPI(title="AI Remote Debug Relay", version="0.2.0", lifespan=lifespan)
 
 
 class DeviceRegisterRequest(BaseModel):

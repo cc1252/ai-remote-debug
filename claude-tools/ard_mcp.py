@@ -1,4 +1,4 @@
-"""Android Remote Debug MCP Server
+"""AI Remote Debug MCP Server
 
 MCP 客户端通过此 server 直接调用 ard.py 的后端 Relay API。
 工具定义是固定 schema，会被提示缓存，不会每次重新加载。

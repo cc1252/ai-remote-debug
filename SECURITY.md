@@ -1,6 +1,6 @@
 # 安全策略
 
-Android Remote Debug 的核心能力包括远程 shell、root、ADB 和 fastboot 操作。任何能够取得 Relay token 的人，都可能获得已连接设备的高权限控制。请仅将本项目用于你拥有或已获明确授权的设备。
+AI Remote Debug 的核心能力包括远程电脑命令、Android shell/root、ADB 和 fastboot 操作。任何能够取得 Relay token 的人，都可能获得已连接节点的高权限控制。请仅将本项目用于你拥有或已获明确授权的电脑和设备。
 
 ## 报告漏洞
 

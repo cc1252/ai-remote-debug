@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""PC Host Agent for Android Remote Debug Relay.
+"""PC Host Agent for AI Remote Debug Relay.
 
 装在客户电脑上,通过 Relay 上线成为一个 "host" 设备。
 你可以远程下发命令,由这台电脑执行 adb / fastboot 等,
@@ -265,7 +265,7 @@ class HostAgent:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Android Remote Debug - PC Host Agent")
+    parser = argparse.ArgumentParser(description="AI Remote Debug - PC Host Agent")
     parser.add_argument("--relay", help="Relay WS 基址, 形如 ws://host:port/ws/mobile")
     parser.add_argument("--token", help="API token")
     parser.add_argument("--device-id", help="本机 host 设备 id (默认按机器名生成, 稳定)")
