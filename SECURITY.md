@@ -4,7 +4,7 @@ AI Remote Debug 的核心能力包括远程电脑命令、Android shell/root、A
 
 ## 报告漏洞
 
-请通过 GitHub 的 [Private vulnerability reporting](https://github.com/cc1252/android-remote-debug-oss/security/advisories/new) 私下报告漏洞。报告中请包含：
+请通过 GitHub 的 [Private vulnerability reporting](https://github.com/cc1252/ai-remote-debug/security/advisories/new) 私下报告漏洞。报告中请包含：
 
 - 受影响的组件和版本或提交；
 - 可复现的最小步骤；

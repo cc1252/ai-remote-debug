@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: 私下报告安全漏洞
-    url: https://github.com/cc1252/android-remote-debug-oss/security/advisories/new
+    url: https://github.com/cc1252/ai-remote-debug/security/advisories/new
     about: 请不要公开披露可被利用的安全问题。

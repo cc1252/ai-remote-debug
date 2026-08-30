@@ -1,6 +1,6 @@
 # AI Remote Debug (ARD)
 
-[![CI](https://github.com/cc1252/android-remote-debug-oss/actions/workflows/ci.yml/badge.svg)](https://github.com/cc1252/android-remote-debug-oss/actions/workflows/ci.yml)
+[![CI](https://github.com/cc1252/ai-remote-debug/actions/workflows/ci.yml/badge.svg)](https://github.com/cc1252/ai-remote-debug/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **让 AI 在获得授权后进入客户的真实运行环境，直接查证问题，而不是隔着聊天窗口猜问题。**
