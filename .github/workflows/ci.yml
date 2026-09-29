@@ -20,7 +20,7 @@ jobs:
       ARD_API_TOKEN: ci-token-that-is-longer-than-thirty-two-characters
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
